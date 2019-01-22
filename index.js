@@ -1,13 +1,13 @@
-const puppeteer = require('puppeteer');
-const _ = require('lodash');
-const urlParse = require('url-parse');
+const puppeteer = require("puppeteer");
+const _ = require("lodash");
+const urlParse = require("url-parse");
 
-const args = require('yargs').options({
+const args = require("yargs").options({
   profile: {
-    alias: 'p',
-    describe: 'the profile for which you want post shortcodes',
+    alias: "p",
+    describe: "the profile for which you want post shortcodes",
     demandOption: true,
-    type: 'string'
+    type: "string"
   }
 }).argv;
 
@@ -24,7 +24,7 @@ const args = require('yargs').options({
   const igProfileData = await page.evaluate(() => _sharedData);
   const user = _.get(
     igProfileData,
-    'entry_data.ProfilePage[0].graphql.user',
+    "entry_data.ProfilePage[0].graphql.user",
     undefined
   );
   if (_.isUndefined(user)) {
@@ -33,12 +33,13 @@ const args = require('yargs').options({
     );
     await page.close();
     await browser.close();
+    return [];
   }
   // const profileId = user.id
 
   const firstPost = _.get(
     user,
-    'edge_owner_to_timeline_media.edges[0].node',
+    "edge_owner_to_timeline_media.edges[0].node",
     undefined
   );
   if (_.isUndefined(firstPost)) {
@@ -47,6 +48,7 @@ const args = require('yargs').options({
     );
     await page.close();
     await browser.close();
+    return [];
   }
 
   const firstPostSelector = `a[href='/p/${firstPost.shortcode}/']`;
@@ -55,27 +57,22 @@ const args = require('yargs').options({
 
   while (true) {
     try {
-      await page.waitForSelector('a.coreSpriteRightPaginationArrow');
-      await page.click('a.coreSpriteRightPaginationArrow');
-      // await page.waitFor(500);
+      await page.waitForSelector("a.coreSpriteRightPaginationArrow");
+      await page.click("a.coreSpriteRightPaginationArrow");
 
       const { pathname } = urlParse(page.url());
-      const shortCode = _.trimEnd(_.trimStart(pathname, '/p/'), '/');
+      const shortCode = _.trimEnd(_.trimStart(pathname, "/p/"), "/");
       shortCodes.push(shortCode);
-
-      // if (shortCodes.length > 20) {
-      //   break;
-      // }
     } catch (e) {
       console.log(e.message);
       break;
     }
   }
 
-  return shortCodes;
-
-  // console.log(shortCodes);
+  console.log(shortCodes);
 
   await page.close();
   await browser.close();
+
+  return shortCodes;
 })();
