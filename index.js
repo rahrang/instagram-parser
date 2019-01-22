@@ -57,22 +57,24 @@ const args = require('yargs').options({
     try {
       await page.waitForSelector('a.coreSpriteRightPaginationArrow');
       await page.click('a.coreSpriteRightPaginationArrow');
-      await page.waitFor(500);
+      // await page.waitFor(500);
 
       const { pathname } = urlParse(page.url());
       const shortCode = _.trimEnd(_.trimStart(pathname, '/p/'), '/');
       shortCodes.push(shortCode);
 
-      if (shortCodes.length > 20) {
-        break;
-      }
+      // if (shortCodes.length > 20) {
+      //   break;
+      // }
     } catch (e) {
       console.log(e.message);
       break;
     }
   }
 
-  console.log(shortCodes);
+  return shortCodes;
+
+  // console.log(shortCodes);
 
   await page.close();
   await browser.close();
